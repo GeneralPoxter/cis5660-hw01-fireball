@@ -8,6 +8,7 @@ precision highp float;
 uniform mat4 u_Model;
 uniform mat4 u_ModelInvTr;
 uniform mat4 u_ViewProj;
+uniform float u_FlameHeight;
 uniform float u_Time;
 
 in vec4 vs_Pos;
@@ -77,7 +78,7 @@ void main() {
     vec3 pos = vs_Pos.xyz;
     float noiseAnim = 1.0 + 2.5 * triangle(u_Time, 1000.);
     pos += 0.2 * fbm(pos * 5. * noiseAnim, 3, 3.) * vs_Nor.xyz;
-    float flameAnim = 0.2 + 3.8 * backInOut(triangle(u_Time, 200.));
+    float flameAnim = 0.2 + 8.0 * u_FlameHeight * backInOut(triangle(u_Time, 240.));
     float pulseAnim = 0.4 * pcurve(triangle(u_Time - 100. * pos.y, 50.), 0.2, 0.3);
     pos += 0.3 * vec3(
         sin(pos.x) * cos(pos.x) + pulseAnim,

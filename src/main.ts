@@ -10,26 +10,31 @@ import ShaderProgram, { Shader } from './rendering/gl/ShaderProgram';
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
-const controls = {
-  tesselations: 5,
-  'Load Scene': loadScene, // A function pointer, essentially
-};
+const color = [255, 0, 0];
+const flameColor = [255, 180, 28];
+// const color = [240, 240, 240];
+// const flameColor = [83, 115, 217];
+const flameHeight = 0.5;
 
-const palette = {
-  color: [255, 0, 0],
+const controls = {
+  'color': color,
+  'flameColor': flameColor,
+  'flameHeight': flameHeight,
+  'Reset Fireball': loadScene, // A function pointer, essentially
 };
 
 let square: Square;
 let icosphere: Icosphere;
 let time: number = 0;
-let prevTesselations: number = 5;
-let prog: ShaderProgram;
 
 function loadScene() {
   square = new Square(vec3.fromValues(0, 0, 0));
   square.create();
-  icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
+  icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, 5);
   icosphere.create();
+  controls.color = color;
+  controls.flameColor = flameColor;
+  controls.flameHeight = flameHeight;
   time = 0;
 }
 
@@ -58,9 +63,10 @@ function main() {
 
   // Add controls to the gui
   const gui = new DAT.GUI();
-  gui.addColor(palette, 'color');
-  gui.add(controls, 'tesselations', 0, 8).step(1);
-  gui.add(controls, 'Load Scene');
+  gui.addColor(controls, 'color').listen();
+  gui.addColor(controls, 'flameColor').listen();
+  gui.add(controls, 'flameHeight', 0, 1).step(.01).listen();
+  gui.add(controls, 'Reset Fireball');
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement>document.getElementById('canvas');
@@ -88,21 +94,12 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/fireball-frag.glsl')),
   ]);
 
-  const lambert = new ShaderProgram([
-    new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert.glsl')),
-    new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
+  const background = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/background-vert.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/background-frag.glsl')),
   ]);
 
-  const flat = new ShaderProgram([
-    new Shader(gl.VERTEX_SHADER, require('./shaders/flat-vert.glsl')),
-    new Shader(gl.FRAGMENT_SHADER, require('./shaders/flat-frag.glsl')),
-  ]);
-
-  prog = fireball;
-
-  function processKeyPresses() {
-    // Use this if you wish
-  }
+  const progs = [fireball, background];
 
   const vec4FromColor = ((color: number[], alpha: number) => {
     return vec4.fromValues(color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, alpha);
@@ -113,18 +110,21 @@ function main() {
     camera.update();
     // stats.begin();
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
-    prog.setColor(vec4FromColor(palette.color, 1.0));
-    renderer.clear();
-    if (controls.tesselations != prevTesselations) {
-      prevTesselations = controls.tesselations;
-      icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, prevTesselations);
-      icosphere.create();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.setAspectRatio(window.innerWidth / window.innerHeight);
+    camera.updateProjectionMatrix();
+
+    for (const prog of progs) {
+      prog.setColor(vec4FromColor(controls.color, 1.0));
+      prog.setFlameColor(vec4FromColor(controls.flameColor, 1.0));
+      prog.setFlameHeight(controls.flameHeight);
+      prog.setDimensions(window.innerWidth, window.innerHeight);
     }
 
-    processKeyPresses();
-    renderer.render(camera, prog, [
-      icosphere,
-    ], time);
+    renderer.clear();
+
+    renderer.render(camera, background, [square], time);
+    renderer.render(camera, fireball, [icosphere], time);
     time++;
     // stats.end();
 
@@ -136,13 +136,10 @@ function main() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.setAspectRatio(window.innerWidth / window.innerHeight);
     camera.updateProjectionMatrix();
-    prog.setDimensions(window.innerWidth, window.innerHeight);
+    for (const prog of progs) {
+      prog.setDimensions(window.innerWidth, window.innerHeight);
+    }
   }, false);
-
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.setAspectRatio(window.innerWidth / window.innerHeight);
-  camera.updateProjectionMatrix();
-  prog.setDimensions(window.innerWidth, window.innerHeight);
 
   // Start the render loop
   tick();

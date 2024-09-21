@@ -5,6 +5,7 @@
 precision highp float;
 
 uniform vec4 u_Color;
+uniform vec4 u_FlameColor;
 uniform float u_Time;
 
 in vec4 fs_Pos;
@@ -65,10 +66,10 @@ float snoise(vec3 v){
 // End of borrowed code
 
 void main() {
-    vec3 color2 = vec3(1., 0.4, 0.);
-    vec3 flame = vec3(1., 0.7, 0.1);
-    vec3 col = mix(u_Color.rgb, color2, smoothstep(0.2, 0.8, snoise(5. * fs_Pos.xyz - vec3(0., u_Time / 15., 0.))));
-    col = mix(col, flame, smoothstep(0.1, 0.3,
+    // Base fireball color
+    vec3 col = mix(u_Color.rgb, u_FlameColor.rgb, smoothstep(0.2, 0.8, snoise(4. * fs_Pos.xyz - vec3(0., u_Time / 10., 0.))));
+    // Shooting flame color
+    col = mix(col, u_FlameColor.rgb, smoothstep(0.1, 0.3,
       min(fs_Pos.y - 0.8 + 0.1 * sin(fs_Pos.x + fs_Pos.z + u_Time / 10.),
           snoise(5. * fs_Pos.xyz - vec3(0., u_Time / 5., 0.)))
     ));
