@@ -66,15 +66,22 @@ float backInOut(float t) {
 }
 // End of borrowed code
 
+float pcurve( float x, float a, float b ) {
+    float k = pow(a+b,a+b)/(pow(a,a)*pow(b,b));
+    return k*pow(x,a)*pow(1.0-x,b);
+}
+
+
 void main() {
     vec3 pos = vs_Pos.xyz;
-    float noiseAnim = 1.0 + 0.5 * triangle(u_Time, 1000.);
+    float noiseAnim = 1.0 + 2.5 * triangle(u_Time, 1000.);
     pos += 0.2 * fbm(pos * 5. * noiseAnim, 3, 3.) * vs_Nor.xyz;
     float flameAnim = 0.3 + 2.2 * backInOut(triangle(u_Time, 200.));
+    float pulseAnim = 0.4 * pcurve(triangle(u_Time - 40. * pos.y, 50.), 0.2, 0.3);
     pos += 0.3 * vec3(
-        sin(pos.x) * cos(pos.x),
+        sin(pos.x) * cos(pos.x) + pulseAnim,
         mix(0., flameAnim * tan(pos.y) * sin(pos.y), smoothstep(0.0, 0.8, pos.y)),
-        sin(pos.z) * cos(pos.z)
+        sin(pos.z) * cos(pos.z) + pulseAnim
     ) * vs_Nor.xyz;
     fs_Pos = vec4(pos, 1.);
     gl_Position = u_ViewProj * u_Model * fs_Pos;
