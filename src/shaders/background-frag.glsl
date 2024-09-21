@@ -56,24 +56,21 @@ float musgraveFbm(vec3 p, int octaves, float dimension, float lacunarity) {
 }
 // End of borrowed code
 
+// Wavy FBM
 vec3 waveFbm(vec3 p) {
     vec3 n = p * vec3(20, 30, 10);
     n += .4 * fbm(p * 3., 3, 3.);
     return sin(n) * .5 + .5;
 }
 
-/*
- * Superformula from @mickdermack
- * https://www.shadertoy.com/view/MdXXDB
- */
+// Superformula from @mickdermack
+// https://www.shadertoy.com/view/MdXXDB
 float sf2d( float m, float a, float b, float n1, float n2, float n3, float phi ) {
     return pow((pow(abs(cos(m*phi/4.0)/a),n2) + pow(abs(sin(m*phi/4.0)/b), n3)), -(1.0/n1));
 }
 
-/*
- * Hash a 2D coordinate from @Dave_Hoskins
- * https://www.shadertoy.com/view/XdGfRR
- */
+// Hash a 2D coordinate from @Dave_Hoskins
+// https://www.shadertoy.com/view/XdGfRR
 float hash(vec2 p)
 {
 	uvec2 q = uvec2(ivec2(p)) * uvec2(1597334673U, 3812015801U);
@@ -81,19 +78,15 @@ float hash(vec2 p)
 	return float(n) * 2.328306437080797e-10;
 }
 
-/*
- * Triangle wave
- */
+// Triangle wave
 float triangle(float t, float period)
 {
     float p2 = period / 2.0;
     return abs(mod(t, period) - p2) / p2;
 }
 
-/*
- * Easing functions from @glslify
- * https://github.com/glslify/glsl-easings
- */
+// Easing functions from @glslify
+// https://github.com/glslify/glsl-easings
 float backInOut(float t) {
   float f = t < 0.5
     ? 2.0 * t
@@ -114,22 +107,13 @@ float exponentialInOut(float t) {
       : -0.5 * pow(2.0, 10.0 - (t * 20.0)) + 1.0;
 }
 
-/*
- * Cosine based palette from @iq
- * https://iquilezles.org/articles/palettes/
- */
-vec3 palette( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
-{
-    return a + b*cos( TWO_PI*(c*t+d) );
-}
-
 void main() {
     vec2 uv = gl_FragCoord.xy;
     float time = u_Time / 40.;
 
     // Scale, tile, and animate grid
     float nShapes = 20.0;
-    float animSpeed = 350.0;
+    float animSpeed = 120.0;
     uv.x /= u_Dimensions.y;
     uv.y = (uv.y - animSpeed * time) / u_Dimensions.y;
     float h = hash(floor(nShapes * uv));
@@ -157,8 +141,8 @@ void main() {
         // Output color
         float l = length(uv);
         if (l < r) {
-            if (l < r - 0.1) {
-                col = mix(u_FlameColor.rgb, u_Color.rgb, 0.5 * cos(TWO_PI * (l + sin(time + h))) + 0.5);
+            if (l < r - 0.05) {
+                col = mix(vec3(0.0), vec3(1.0), 0.5 * cos(TWO_PI * (l + sin(time + h))) + 0.5);
             } else {
                 col = mix(u_FlameColor.rgb, u_Color.rgb, h);
             }
