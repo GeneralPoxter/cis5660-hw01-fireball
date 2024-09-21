@@ -75,13 +75,18 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(0, 0, -10), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(0, 0.5, 5), vec3.fromValues(0, 0.5, 0));
 
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+  const fireball = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/fireball-vert.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/fireball-frag.glsl')),
+  ]);
 
   const lambert = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert.glsl')),
@@ -93,7 +98,7 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/flat-frag.glsl')),
   ]);
 
-  prog = lambert;
+  prog = fireball;
 
   function processKeyPresses() {
     // Use this if you wish
