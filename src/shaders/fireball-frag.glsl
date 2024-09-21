@@ -66,11 +66,14 @@ float snoise(vec3 v){
 // End of borrowed code
 
 void main() {
+    float y_thresh = 0.8;
     // Base fireball color
-    vec3 col = mix(u_Color.rgb, u_FlameColor.rgb, smoothstep(0.2, 0.8, snoise(4. * fs_Pos.xyz - vec3(0., u_Time / 10., 0.))));
-    // Shooting flame color
-    col = mix(col, u_FlameColor.rgb, smoothstep(0.1, 0.3,
-      min(fs_Pos.y - 0.8 + 0.1 * sin(fs_Pos.x + fs_Pos.z + u_Time / 10.),
+    vec3 col = mix(u_Color.rgb, u_FlameColor.rgb, fs_Pos.y - y_thresh);
+    // Simplex noise patterns
+    col = mix(col, u_FlameColor.rgb, smoothstep(0.2, 0.6, snoise(5. * fs_Pos.xyz - vec3(0., u_Time / 10., 0.))));
+    // Shooting flame noise
+    col = mix(col, u_Color.rgb, smoothstep(0.1, 0.3,
+      min(fs_Pos.y - y_thresh + 0.1 * sin(fs_Pos.x + fs_Pos.z + u_Time / 10.),
           snoise(5. * fs_Pos.xyz - vec3(0., u_Time / 5., 0.)))
     ));
     out_Col = vec4(col, 1.0);
