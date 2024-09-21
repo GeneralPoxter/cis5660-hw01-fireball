@@ -68,9 +68,9 @@ float backInOut(float t) {
 
 void main() {
     vec3 pos = vs_Pos.xyz;
-    float noiseAnim = 1.0 + 0.1 * triangle(u_Time, 1000.);
-    pos += 0.3 * fbm(pos * 10. * noiseAnim, 8, 3.) * vs_Nor.xyz;
-    float flameAnim = 0.4 + 1.8 * backInOut(triangle(u_Time, 200.));
+    float noiseAnim = 1.0 + 0.5 * triangle(u_Time, 1000.);
+    pos += 0.2 * fbm(pos * 5. * noiseAnim, 3, 3.) * vs_Nor.xyz;
+    float flameAnim = 0.3 + 2.2 * backInOut(triangle(u_Time, 200.));
     pos += 0.3 * vec3(
         sin(pos.x) * cos(pos.x),
         mix(0., flameAnim * tan(pos.y) * sin(pos.y), smoothstep(0.0, 0.8, pos.y)),

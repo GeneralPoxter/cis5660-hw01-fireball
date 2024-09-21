@@ -11,12 +11,6 @@ in vec4 fs_Pos;
 
 out vec4 out_Col;
 
-// Cosine-based color palette from @iq
-// https://www.shadertoy.com/view/ll2GD3
-vec3 palette( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d ) {
-    return a + b*cos( TWO_PI*(c*t+d) );
-}
-
 // Simplex 3D Noise by Ian McEwan, Stefan Gustavson
 // https://github.com/stegu/webgl-noise
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
@@ -72,5 +66,11 @@ float snoise(vec3 v){
 
 void main() {
     vec3 color2 = vec3(1., 0.4, 0.);
-    out_Col = vec4(mix(u_Color.rgb, color2, smoothstep(0.2, 0.8, snoise(5. * fs_Pos.xyz - vec3(0., u_Time / 50., 0.)))), 1.0);
+    vec3 flame = vec3(1., 0.7, 0.1);
+    vec3 col = mix(u_Color.rgb, color2, smoothstep(0.2, 0.8, snoise(5. * fs_Pos.xyz - vec3(0., u_Time / 15., 0.))));
+    col = mix(col, flame, smoothstep(0.1, 0.3,
+      min(fs_Pos.y - 0.3 + 0.1 * sin(fs_Pos.x + fs_Pos.z + u_Time / 10.),
+          snoise(5. * fs_Pos.xyz - vec3(0., u_Time / 5., 0.)))
+    ));
+    out_Col = vec4(col, 1.0);
 }
