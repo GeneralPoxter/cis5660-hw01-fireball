@@ -69,7 +69,7 @@ void main() {
     vec3 flame = vec3(1., 0.7, 0.1);
     vec3 col = mix(u_Color.rgb, color2, smoothstep(0.2, 0.8, snoise(5. * fs_Pos.xyz - vec3(0., u_Time / 15., 0.))));
     col = mix(col, flame, smoothstep(0.1, 0.3,
-      min(fs_Pos.y - 0.3 + 0.1 * sin(fs_Pos.x + fs_Pos.z + u_Time / 10.),
+      min(fs_Pos.y - 0.8 + 0.1 * sin(fs_Pos.x + fs_Pos.z + u_Time / 10.),
           snoise(5. * fs_Pos.xyz - vec3(0., u_Time / 5., 0.)))
     ));
     out_Col = vec4(col, 1.0);
