@@ -125,20 +125,20 @@ vec3 palette( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
 
 void main() {
     vec2 uv = gl_FragCoord.xy;
-    float time = u_Time / 60.;
+    float time = u_Time / 40.;
 
     // Scale, tile, and animate grid
     float nShapes = 20.0;
-    float animSpeed = 360.0;
+    float animSpeed = 350.0;
     uv.x /= u_Dimensions.y;
     uv.y = (uv.y - animSpeed * time) / u_Dimensions.y;
     float h = hash(floor(nShapes * uv));
     float h2 = hash(floor(nShapes * uv) + 3.);
     uv = 2.0 * fract(nShapes * uv) - vec2(1.0);
     
-    // Grid background
+    // FBM background
     float fbm = musgraveFbm(waveFbm(fs_Pos * vec3(.05, .15, .15)) * vec3(100, 6, 20), 8, 0., 3.);
-    vec3 col = 0.6 * mix(u_Color.rgb, u_FlameColor.rgb, fbm);
+    vec3 col = vec3(fbm);
 
     // Supershape stars
     if (h2 > 0.9) {
@@ -157,10 +157,10 @@ void main() {
         // Output color
         float l = length(uv);
         if (l < r) {
-            if (l < r - 0.05) {
+            if (l < r - 0.1) {
                 col = mix(u_FlameColor.rgb, u_Color.rgb, 0.5 * cos(TWO_PI * (l + sin(time + h))) + 0.5);
             } else {
-                col = u_FlameColor.rgb;
+                col = mix(u_FlameColor.rgb, u_Color.rgb, h);
             }
         }
     }
