@@ -66,8 +66,7 @@ float backInOut(float t) {
 }
 // End of borrowed code
 
-void main()
-{
+void main() {
     vec3 pos = vs_Pos.xyz;
     float noiseAnim = 1.0 + 0.1 * triangle(u_Time, 1000.);
     pos += 0.3 * fbm(pos * 10. * noiseAnim, 8, 3.) * vs_Nor.xyz;
