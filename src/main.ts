@@ -10,7 +10,7 @@ import ShaderProgram, { Shader } from './rendering/gl/ShaderProgram';
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
-const color = [255, 0, 0];
+const color = [255, 28, 28];
 const flameColor = [255, 180, 28];
 // const color = [240, 240, 240];
 // const flameColor = [83, 115, 217];
